@@ -1,7 +1,8 @@
 import { type NextPage } from "next";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useCallback } from "react";
 
 import { api } from "../utils/api";
 
@@ -66,12 +67,33 @@ const AuthShowcase: React.FC = () => {
     { enabled: sessionData?.user !== undefined },
   );
 
+  const email = sessionData && sessionData.user && sessionData.user.email ? sessionData.user.email : '';
+  const { data: profileData } = api.profile.getProfile.useQuery({ email });
+  console.log(profileData);
+  
+  const saveProfileMutation = api.profile.saveProfile.useMutation()
+
+  const updateOne = useCallback(() => {
+    saveProfileMutation.mutate({
+      loggedInEmail: email,
+      aboutMe: 'some info',
+    })
+  }, [email, saveProfileMutation]);
+
+
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl text-white">
         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
         {secretMessage && <span> - {secretMessage}</span>}
+        {profileData && <span>{profileData.updatedAt.toISOString()}</span>}
       </p>
+      <button
+        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+        onClick={updateOne}
+      >
+        Save
+      </button>
       <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
         onClick={sessionData ? () => void signOut() : () => void signIn()}

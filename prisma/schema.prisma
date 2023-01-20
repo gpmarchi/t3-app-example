@@ -48,13 +48,22 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+    id               String    @id @default(cuid())
+    name             String?
+    email            String?   @unique
+    emailVerified    DateTime?
+    image            String?
+    password         String?
+    title            String?
+    aboutMe          String?   @map(name: "about_me")
+    birthDate        DateTime? @map(name: "birthdate") //@db.Date
+    phoneNumber      String?   @map(name: "phone_number")
+    newsOptIn        Boolean   @default(false) @map(name: "news_opt_in")
+    stripeCustomerId String?   @map(name: "stripe_customer_id")
+    createdAt        DateTime  @default(dbgenerated("CURRENT_TIMESTAMP")) @map(name: "created_at") //@db.Timestamp()
+    updatedAt        DateTime  @updatedAt @map(name: "updated_at") //@db.Timestamp()
+    accounts         Account[]
+    sessions         Session[]
 }
 
 model VerificationToken {
